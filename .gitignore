@@ -1,0 +1,9 @@
+# Local secrets and machine-specific configuration
+backend/.env
+frontend/.env
+
+# Local runtimes and generated files
+backend/.venv/
+backend/.pytest_cache/
+frontend/node_modules/
+frontend/dist/
