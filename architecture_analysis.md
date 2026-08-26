@@ -45,10 +45,10 @@ The Mini App sends Telegram's signed `initData`. The backend validates its HMAC 
 
 ## Current prototype scope
 
-Current Stage 2 backend functionality covers barber profile, services, weekly schedule, and personal/blocked time. The frontend remains a foundation shell.
+Current Stage 3 functionality covers barber profile, services, weekly schedule, blocked time, customer booking, availability, multi-service appointments, customer/barber cancellation, and walk-ins.
 
 ## Future direction and exclusions
 
-The schema allows future multiple locations and independent barbers without a redesign. Future booking supports a selected barber or “Any Available Barber”; the latter must choose a concrete available barber at booking time. The availability engine will use schedules, appointments, blocked time, service duration, and 15-minute start intervals.
+The schema allows future multiple locations and independent barbers without a redesign. Booking supports a selected barber or “Any Available Barber”; the latter assigns a concrete available barber at booking time. The availability engine uses schedules, appointments, blocked time, service duration, and 15-minute start intervals.
 
-Not currently in scope: SaaS billing, payments, shop-owner administration, salaries, full accounting, marketplace features, AI recommendations, advanced marketing, loyalty systems, multi-location administration UI, advanced analytics, booking availability, walk-ins, and notifications.
+Not currently in scope: SaaS billing, payments, shop-owner administration, salaries, full accounting, marketplace features, AI recommendations, advanced marketing, loyalty systems, multi-location administration UI, advanced analytics, and notifications.

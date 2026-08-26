@@ -45,6 +45,9 @@ class Service(TimestampMixin, UUIDBase):
     appointments: Mapped[list["Appointment"]] = relationship(  # noqa: F821
         "Appointment", back_populates="service"
     )
+    appointment_service_rows: Mapped[list["AppointmentService"]] = relationship(  # noqa: F821
+        "AppointmentService", back_populates="service"
+    )
 
     def __repr__(self) -> str:
         return (

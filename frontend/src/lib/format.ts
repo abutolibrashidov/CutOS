@@ -21,3 +21,18 @@ export function toDateTimeLocal(value: string): string {
   const offset = date.getTimezoneOffset() * 60_000
   return new Date(date.getTime() - offset).toISOString().slice(0, 16)
 }
+
+export function formatUtcClock(value: string): string {
+  const date = new Date(value)
+  const hours = String(date.getUTCHours()).padStart(2, '0')
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
+export function formatUtcDate(value: string): string {
+  return new Date(value).toISOString().split('T')[0]
+}
+
+export function localDateTimeInputToUtcIso(value: string): string {
+  return `${value}:00.000Z`
+}

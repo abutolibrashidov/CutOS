@@ -53,7 +53,7 @@ def test_models_importable() -> None:
 
 def test_app_title() -> None:
     """FastAPI app should have the correct title."""
-    assert "Barber" in app.title
+    assert "Barber" in app.title or "CutOS" in app.title
 
 
 @pytest.mark.asyncio

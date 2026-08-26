@@ -71,6 +71,7 @@ class Settings(BaseSettings):
     # ── Telegram ─────────────────────────────────────────────────────────────
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_WEBHOOK_SECRET: str = ""
+    MINI_APP_URL: str = ""  # your current tunnel URL, e.g. https://xxx.trycloudflare.com
     TELEGRAM_INIT_DATA_MAX_AGE_SECONDS: int = Field(default=3600, gt=0)
     TELEGRAM_INIT_DATA_FUTURE_SKEW_SECONDS: int = Field(default=30, ge=0)
 

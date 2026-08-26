@@ -5,7 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    port: 5174,
+    strictPort: true,
+    allowedHosts: ['indication-requests-ind-telecom.trycloudflare.com'],
     proxy: {
       // Proxy API calls to the backend during development so CORS is not needed
       '/api': {

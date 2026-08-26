@@ -2,18 +2,19 @@
 
 Telegram Mini App platform for independent barbers operating at a shared physical location. The current prototype supports one location and approximately ten independent barbers while preserving a path to future multi-location SaaS.
 
-## Current status: Stage 2 backend
+## Current status: Stage 3
 
-Implemented backend capabilities:
+Implemented capabilities:
 
-- Secure barber authentication through Telegram Mini App `initData` verification.
-- Barber profile read/update.
-- Barber-owned service CRUD, including price, duration, and activation status.
-- Seven-day working-schedule API.
-- One-off blocked/personal-time create, list, update, and delete APIs.
-- Database models and migrations for the full foundational entity set.
+- Secure barber and customer authentication through Telegram Mini App `initData` verification.
+- Barber profile, services, weekly schedule, and blocked/personal time.
+- Customer booking wizard: location, barber (or any available), multi-service, date, and 15-minute slots.
+- Availability engine using working schedule, blocked time, active appointments, and service duration.
+- Atomic booking with historical price/duration snapshots and race-condition protection.
+- Customer appointment list and cancellation (1-hour cutoff).
+- Barber appointment list, cancellation, and walk-in creation.
 
-The Stage 2 frontend UI, booking/availability engine, customer management, walk-ins, finance, notifications, and SaaS administration are not implemented.
+Not in this stage: complete/no-show workflows, finance, notifications, and SaaS administration.
 
 ## Technology
 

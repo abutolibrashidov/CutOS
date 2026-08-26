@@ -53,9 +53,11 @@ export function DashboardPage() {
         <article className="summary-card"><span>{t('DASH_BLOCKED_PERIODS')}</span><strong>{blockedCount}</strong></article>
       </div>
       <div className="quick-links">
+        <Link to="/buyurtmalar">{t('NAV_APPOINTMENTS')} <span>{t('DASH_OPEN_SECTION')} →</span></Link>
         <Link to="/xizmatlar">{t('NAV_SERVICES')} <span>{t('DASH_OPEN_SECTION')} →</span></Link>
         <Link to="/ish-vaqti">{t('NAV_SCHEDULE')} <span>{t('DASH_OPEN_SECTION')} →</span></Link>
         <Link to="/band-vaqtlar">{t('NAV_BLOCKED')} <span>{t('DASH_OPEN_SECTION')} →</span></Link>
+        <Link to="/booking">{t('BOOK_NOW')} <span>{t('DASH_OPEN_SECTION')} →</span></Link>
         <Link to="/profil">{t('NAV_PROFILE')} <span>{t('DASH_OPEN_SECTION')} →</span></Link>
       </div>
     </section>

@@ -32,9 +32,18 @@ class Appointment(TimestampMixin, UUIDBase):
     """
     A single appointment session.
 
-    SNAPSHOT FIELDS (service_name_at_booking, price_at_booking, duration_at_booking):
-    These are frozen copies of the service details at the moment of booking.
-    Future edits to Service records NEVER affect historical appointments.
+    MULTI-SERVICE SUPPORT (Stage 3):
+    Detailed per-service snapshots live in AppointmentService (one row per
+    service included in the booking).  The aggregate totals are kept here
+    for efficient overlap queries:
+      - price_at_booking  : sum of all AppointmentService.price_at_booking
+      - duration_at_booking : sum of all AppointmentService.duration_at_booking
+
+    LEGACY SINGLE-SERVICE FIELD:
+    service_id and service_name_at_booking are now nullable so that existing
+    Stage-2 test data and historical rows are not broken.  New bookings
+    created via the Stage-3 API leave these NULL and use the
+    appointment_services join table instead.
 
     end_at is derived from start_at + duration_at_booking and stored explicitly
     for efficient overlap queries during availability calculation.
@@ -61,10 +70,11 @@ class Appointment(TimestampMixin, UUIDBase):
         nullable=False,
         index=True,
     )
-    service_id: Mapped[uuid.UUID] = mapped_column(
+    # Nullable from Stage 3 onward — multi-service bookings use appointment_services.
+    service_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("services.id", ondelete="RESTRICT"),
-        nullable=False,
+        nullable=True,
     )
 
     # Scheduling
@@ -87,28 +97,34 @@ class Appointment(TimestampMixin, UUIDBase):
         default=AppointmentSource.ONLINE,
     )
 
-    # ── Snapshot fields ───────────────────────────────────────────────────────
-    # Frozen at booking time — never changes even if the Service is later edited
-    service_name_at_booking: Mapped[str] = mapped_column(String(255), nullable=False)
+    # ── Aggregate snapshot fields ──────────────────────────────────────────────
+    # For multi-service bookings these are the SUM of all AppointmentService rows.
+    # For legacy single-service rows they equal that one service's values.
+    service_name_at_booking: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )  # NULL for multi-service bookings
     price_at_booking: Mapped[int] = mapped_column(
         BigInteger, nullable=False
-    )  # integer UZS
+    )  # total, integer UZS
     duration_at_booking: Mapped[int] = mapped_column(
         Integer, nullable=False
-    )  # minutes
+    )  # total minutes
 
     # Optional notes (barber or system)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships
     barber: Mapped["Barber"] = relationship(  # noqa: F821
-        "Barber", back_populates="appointments"
+        "Barber", back_populates="appointments", lazy="selectin"
     )
     customer: Mapped["Customer"] = relationship(  # noqa: F821
-        "Customer", back_populates="appointments"
+        "Customer", back_populates="appointments", lazy="selectin"
     )
-    service: Mapped["Service"] = relationship(  # noqa: F821
+    service: Mapped["Service | None"] = relationship(  # noqa: F821
         "Service", back_populates="appointments"
+    )
+    appointment_services: Mapped[list["AppointmentService"]] = relationship(  # noqa: F821
+        "AppointmentService", back_populates="appointment", cascade="all, delete-orphan", lazy="selectin"
     )
 
     def __repr__(self) -> str:

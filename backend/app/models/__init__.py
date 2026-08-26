@@ -6,6 +6,7 @@ SQLAlchemy's metadata before Alembic autogenerate runs its introspection.
 """
 
 from app.models.appointment import Appointment, AppointmentSource, AppointmentStatus
+from app.models.appointment_service import AppointmentService
 from app.models.barber import Barber
 from app.models.barber_customer import BarberCustomer
 from app.models.base import UUIDBase
@@ -28,5 +29,6 @@ __all__ = [
     "Appointment",
     "AppointmentStatus",
     "AppointmentSource",
+    "AppointmentService",
     "Expense",
 ]

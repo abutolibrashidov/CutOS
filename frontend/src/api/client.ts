@@ -144,3 +144,47 @@ export async function updateBlockedTime(id: string, payload: BlockedTimePayload)
 export async function deleteBlockedTime(id: string): Promise<void> {
   await apiClient.delete(`/barber/blocked-times/${id}`)
 }
+
+export interface BarberAppointmentService {
+  service_id: string
+  service_name_at_booking: string
+  price_at_booking: number
+  duration_at_booking: number
+}
+
+export interface BarberAppointmentResponse {
+  id: string
+  barber_id: string
+  customer_id: string
+  start_at: string
+  end_at: string
+  status: string
+  source: string
+  price_at_booking: number
+  duration_at_booking: number
+  appointment_services: BarberAppointmentService[]
+  notes: string | null
+  created_at: string
+  customer_full_name: string | null
+  customer_phone: string | null
+  barber_full_name: string | null
+}
+
+export interface WalkInPayload {
+  full_name: string
+  phone: string | null
+  service_ids: string[]
+  start_at: string
+}
+
+export async function getBarberAppointments(): Promise<BarberAppointmentResponse[]> {
+  return (await apiClient.get<BarberAppointmentResponse[]>('/barber/appointments/')).data
+}
+
+export async function cancelBarberAppointment(id: string): Promise<BarberAppointmentResponse> {
+  return (await apiClient.post<BarberAppointmentResponse>(`/barber/appointments/${id}/cancel`)).data
+}
+
+export async function createWalkIn(payload: WalkInPayload): Promise<BarberAppointmentResponse> {
+  return (await apiClient.post<BarberAppointmentResponse>('/barber/appointments/walk-in/', payload)).data
+}
