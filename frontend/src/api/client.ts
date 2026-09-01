@@ -59,16 +59,11 @@ export interface BlockedTimePayload {
   reason: string | null
 }
 
-let telegramInitData = ''
-
+// Call ready() once at module load — safe and idempotent; tells Telegram the app has loaded.
 try {
-  const webApp = window.Telegram?.WebApp
-  if (webApp) {
-    webApp.ready()
-    telegramInitData = webApp.initData ?? ''
-  }
+  window.Telegram?.WebApp?.ready()
 } catch {
-  // Telegram tashqarisida ishlash mahalliy ishlab chiqishda kutiladi.
+  // Expected outside Telegram (local browser dev).
 }
 
 function createApiClient(): AxiosInstance {
@@ -82,11 +77,13 @@ function createApiClient(): AxiosInstance {
   })
 
   client.interceptors.request.use((config) => {
-    if (telegramInitData) {
-      // Telegram initData is already a signed URL-encoded query string.
-      config.headers.Authorization = `tma ${telegramInitData}`
+    // Read initData fresh on every request — avoids the race condition where
+    // window.Telegram hasn't been injected yet when the module was first imported.
+    const initData = window.Telegram?.WebApp?.initData ?? ''
+    if (initData) {
+      config.headers.Authorization = `tma ${initData}`
     } else if (import.meta.env.DEV && import.meta.env.VITE_DEV_TELEGRAM_ID) {
-      // The backend only accepts this development credential in development.
+      // Development-only fallback — never active in production builds.
       config.headers.Authorization = `test ${import.meta.env.VITE_DEV_TELEGRAM_ID}`
     }
     return config

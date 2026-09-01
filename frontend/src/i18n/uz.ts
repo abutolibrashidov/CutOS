@@ -1,5 +1,5 @@
 export const uz = {
-  APP_NAME: 'Sartaroshxona',
+  APP_NAME: 'CutOS',
   NAV_HOME: 'Bosh sahifa',
   NAV_SERVICES: 'Xizmatlar',
   NAV_SCHEDULE: 'Ish vaqti',
