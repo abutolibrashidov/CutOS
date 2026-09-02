@@ -77,13 +77,18 @@ function createApiClient(): AxiosInstance {
   })
 
   client.interceptors.request.use((config) => {
-    // Read initData fresh on every request — avoids the race condition where
-    // window.Telegram hasn't been injected yet when the module was first imported.
-    const initData = window.Telegram?.WebApp?.initData ?? ''
-    if (initData) {
-      config.headers.Authorization = `tma ${initData}`
+    const liveInitData = window.Telegram?.WebApp?.initData ?? ''
+    console.log('[AUTH DEBUG]', {
+      url: config.url,
+      method: config.method,
+      hasWindowTelegram: !!window.Telegram,
+      hasWebApp: !!window.Telegram?.WebApp,
+      initDataLength: liveInitData.length,
+      initDataPreview: liveInitData.slice(0, 50),
+    })
+    if (liveInitData) {
+      config.headers.Authorization = `tma ${liveInitData}`
     } else if (import.meta.env.DEV && import.meta.env.VITE_DEV_TELEGRAM_ID) {
-      // Development-only fallback — never active in production builds.
       config.headers.Authorization = `test ${import.meta.env.VITE_DEV_TELEGRAM_ID}`
     }
     return config
