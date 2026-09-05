@@ -129,7 +129,27 @@ export const uz = {
   WALKIN_EMPTY: 'Hozircha buyurtmalar yo‘q.',
   WALKIN_NAME_PLACEHOLDER: 'Masalan, Abduvali',
   WALKIN_PHONE_PLACEHOLDER: 'Masalan, +998901234567',
+
+  ADMIN_TITLE: 'Admin paneli',
+  ADMIN_BARBERS: 'Sartoshlar',
+  ADMIN_LOCATIONS: 'Manzillar',
+  ADMIN_ADD_BARBER: 'Sartosh qo‘shish',
+  ADMIN_EDIT_BARBER: 'Sartoshni tahrirlash',
+  ADMIN_TELEGRAM_ID: 'Telegram ID (sonlar)',
+  ADMIN_FULL_NAME: 'To‘liq ism (F.I.SH.)',
+  ADMIN_PHONE: 'Telefon raqami',
+  ADMIN_LOCATION: 'Joylashuv (filial)',
+  ADMIN_STATUS: 'Holati',
+  ADMIN_ACTIVE: 'Faol',
+  ADMIN_INACTIVE: 'Nofaol',
+  ADMIN_ACTIVATE: 'Faollashtirish',
+  ADMIN_DEACTIVATE: 'Nofaol qilish',
+  ADMIN_NO_BARBERS: 'Hozircha tizimda sartoshlar ro‘yxatga olinmagan.',
+  ADMIN_BARBER_CREATED: 'Sartosh muvaffaqiyatli qo‘shildi.',
+  ADMIN_BARBER_UPDATED: 'Sartosh ma’lumotlari yangilandi.',
+  ADMIN_ACCESS_DENIED: 'Ruxsat berilmadi. Administrator huquqi yo‘q.',
 } as const
+
 
 export type UzKey = keyof typeof uz
 

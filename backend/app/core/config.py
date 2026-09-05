@@ -75,6 +75,23 @@ class Settings(BaseSettings):
     TELEGRAM_INIT_DATA_MAX_AGE_SECONDS: int = Field(default=3600, gt=0)
     TELEGRAM_INIT_DATA_FUTURE_SKEW_SECONDS: int = Field(default=30, ge=0)
 
+    # ── Admin ────────────────────────────────────────────────────────────────
+    ADMIN_TELEGRAM_IDS: str = ""
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def admin_telegram_ids_set(self) -> set[int]:
+        """Parse comma-separated string of Telegram IDs into a set of integers."""
+        if not self.ADMIN_TELEGRAM_IDS:
+            return set()
+        ids = set()
+        for item in self.ADMIN_TELEGRAM_IDS.split(","):
+            item_str = item.strip()
+            if item_str.isdigit():
+                ids.add(int(item_str))
+        return ids
+
+
     # ── CORS ─────────────────────────────────────────────────────────────────
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
 

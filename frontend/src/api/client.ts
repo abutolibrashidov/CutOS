@@ -190,3 +190,53 @@ export async function cancelBarberAppointment(id: string): Promise<BarberAppoint
 export async function createWalkIn(payload: WalkInPayload): Promise<BarberAppointmentResponse> {
   return (await apiClient.post<BarberAppointmentResponse>('/barber/appointments/walk-in/', payload)).data
 }
+
+// ── Admin API ─────────────────────────────────────────────────────────────
+export interface AdminBarber {
+  id: string
+  location_id: string | null
+  telegram_id: number
+  full_name: string
+  phone: string | null
+  bio: string | null
+  avatar_url: string | null
+  is_active: boolean
+  created_at: string
+  location_name: string | null
+}
+
+export interface AdminBarberPayload {
+  telegram_id: number
+  full_name: string
+  phone?: string | null
+  location_id?: string | null
+  bio?: string | null
+  avatar_url?: string | null
+  is_active?: boolean
+}
+
+export interface AdminMeResponse {
+  is_admin: boolean
+  telegram_id: number
+}
+
+export async function checkAdmin(): Promise<AdminMeResponse> {
+  return (await apiClient.get<AdminMeResponse>('/admin/me')).data
+}
+
+export async function getAdminBarbers(): Promise<AdminBarber[]> {
+  return (await apiClient.get<AdminBarber[]>('/admin/barbers/')).data
+}
+
+export async function createAdminBarber(payload: AdminBarberPayload): Promise<AdminBarber> {
+  return (await apiClient.post<AdminBarber>('/admin/barbers/', payload)).data
+}
+
+export async function updateAdminBarber(id: string, payload: Partial<AdminBarberPayload>): Promise<AdminBarber> {
+  return (await apiClient.put<AdminBarber>(`/admin/barbers/${id}`, payload)).data
+}
+
+export async function toggleBarberActive(id: string, is_active: boolean): Promise<AdminBarber> {
+  return (await apiClient.patch<AdminBarber>(`/admin/barbers/${id}/status`, { is_active })).data
+}
+

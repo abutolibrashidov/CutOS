@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 5174,
     strictPort: true,
-    allowedHosts: ['paste-function-hindu-aka.trycloudflare.com'],
+    allowedHosts: ['induced-tag-sense-supplies.trycloudflare.com'],
     proxy: {
       // Proxy API calls to the backend during development so CORS is not needed
       '/api': {

@@ -2,8 +2,8 @@ import { NavLink, Outlet, Route, Routes } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 import { t } from './i18n/uz'
-import { getProfile } from './api/client'
-import { LoadingState } from './components/Feedback'
+import { checkAdmin, getProfile } from './api/client'
+import { ErrorState, LoadingState } from './components/Feedback'
 import { BlockedTimesPage } from './pages/BlockedTimesPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -12,6 +12,7 @@ import { ServicesPage } from './pages/ServicesPage'
 import { BookingWizardPage } from './pages/BookingWizardPage'
 import { MyAppointmentsPage } from './pages/MyAppointmentsPage'
 import { BarberAppointmentsPage } from './pages/BarberAppointmentsPage'
+import { AdminDashboardPage } from './pages/AdminDashboardPage'
 
 const navigation = [
   { to: '/', label: 'NAV_HOME', icon: '⌂' },
@@ -37,6 +38,17 @@ function WorkspaceLayout() {
           </NavLink>
         ))}
       </nav>
+    </div>
+  )
+}
+
+function AdminLayout() {
+  return (
+    <div className="app-shell">
+      <header className="app-header">
+        <p className="eyebrow">{t('APP_NAME')} — {t('ADMIN_TITLE')}</p>
+      </header>
+      <main className="page-content"><Outlet /></main>
     </div>
   )
 }
@@ -72,11 +84,19 @@ function CustomerLayout({ isBarber }: { isBarber: boolean }) {
 }
 
 function App() {
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [isBarber, setIsBarber] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function checkUser() {
+      try {
+        const adminRes = await checkAdmin()
+        setIsAdmin(adminRes?.is_admin === true)
+      } catch {
+        setIsAdmin(false)
+      }
+
       try {
         await getProfile()
         setIsBarber(true)
@@ -93,6 +113,14 @@ function App() {
 
   return (
     <Routes>
+      {/* Admin routes accessible to authorized admin */}
+      <Route element={<AdminLayout />}>
+        <Route
+          path="/admin"
+          element={isAdmin ? <AdminDashboardPage /> : <ErrorState message={t('ADMIN_ACCESS_DENIED')} />}
+        />
+      </Route>
+
       {isBarber ? (
         <>
           {/* Barber routes */}
@@ -127,3 +155,4 @@ function App() {
 }
 
 export default App
+

@@ -31,6 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Shutting down %s", settings.APP_NAME)
 
 
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,

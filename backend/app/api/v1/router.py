@@ -19,10 +19,16 @@ from app.api.v1.customer.availability import router as availability_router
 from app.api.v1.customer.book import router as book_router
 from app.api.v1.customer.appointments import router as customer_appointments_router
 
+from app.api.v1.admin.router import admin_router
+
 api_router = APIRouter(prefix="/api/v1")
 
 # System
 api_router.include_router(health_router)
+
+# Admin routes
+api_router.include_router(admin_router)
+
 
 # ── Barber routes ────────────────────────────────────────────────────────────
 barber_router = APIRouter(prefix="/barber")
