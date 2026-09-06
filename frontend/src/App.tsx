@@ -1,4 +1,4 @@
-import { NavLink, Outlet, Route, Routes } from 'react-router-dom'
+import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 import { t } from './i18n/uz'
@@ -88,11 +88,20 @@ function App() {
   const [isBarber, setIsBarber] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const navigate = useNavigate()
+  const location = useLocation()
+
   useEffect(() => {
     async function checkUser() {
       try {
         const adminRes = await checkAdmin()
-        setIsAdmin(adminRes?.is_admin === true)
+        if (adminRes?.is_admin === true) {
+          setIsAdmin(true)
+          setIsBarber(false)
+          setLoading(false)
+          return
+        }
+        setIsAdmin(false)
       } catch {
         setIsAdmin(false)
       }
@@ -109,19 +118,24 @@ function App() {
     void checkUser()
   }, [])
 
+  useEffect(() => {
+    if (!loading && isAdmin && location.pathname === '/') {
+      navigate('/admin', { replace: true })
+    }
+  }, [loading, isAdmin, location.pathname, navigate])
+
   if (loading) return <LoadingState />
 
   return (
     <Routes>
-      {/* Admin routes accessible to authorized admin */}
-      <Route element={<AdminLayout />}>
-        <Route
-          path="/admin"
-          element={isAdmin ? <AdminDashboardPage /> : <ErrorState message={t('ADMIN_ACCESS_DENIED')} />}
-        />
-      </Route>
-
-      {isBarber ? (
+      {/* Admin workspace */}
+      {isAdmin ? (
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/" element={<Navigate to="/admin" replace />} />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
+        </Route>
+      ) : isBarber ? (
         <>
           {/* Barber routes */}
           <Route element={<WorkspaceLayout />}>
@@ -142,10 +156,11 @@ function App() {
         </>
       ) : (
         <>
-          {/* Customer only routes */}
+          {/* Customer routes when not admin and not barber */}
           <Route element={<CustomerLayout isBarber={false} />}>
             <Route path="/booking" element={<BookingWizardPage />} />
             <Route path="/buyurtmalarim" element={<MyAppointmentsPage />} />
+            <Route path="/admin" element={<ErrorState message={t('ADMIN_ACCESS_DENIED')} />} />
             <Route path="*" element={<BookingWizardPage />} />
           </Route>
         </>
@@ -155,4 +170,5 @@ function App() {
 }
 
 export default App
+
 

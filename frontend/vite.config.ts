@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     port: 5174,
     strictPort: true,
-    allowedHosts: ['cricket-stripes-watts-advantage.trycloudflare.com'],
+    allowedHosts: ['arizona-supplier-indicator-signatures.trycloudflare.com'],
     proxy: {
       // Proxy API calls to the backend during development so CORS is not needed
       '/api': {
