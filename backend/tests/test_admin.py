@@ -1,5 +1,7 @@
+import uuid
 import pytest
 from httpx import ASGITransport, AsyncClient
+
 
 from app.core import admin_auth
 from app.main import app
@@ -160,5 +162,106 @@ async def test_admin_location_crud_flow(db_session) -> None:
         )
         assert update_res.status_code == 200
         assert update_res.json()["name"] == "Chorsu Flagship Branch"
+
+
+@pytest.mark.asyncio
+async def test_admin_create_barber_missing_location_id_rejected() -> None:
+    """Creating a barber without location_id is rejected with 422 Unprocessable Entity."""
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        headers={"Authorization": "test 99999"},
+    ) as admin_client:
+        payload = {
+            "telegram_id": 888111,
+            "full_name": "No Location Barber",
+            "is_active": True,
+        }
+        res = await admin_client.post("/api/v1/admin/barbers/", json=payload)
+        assert res.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_admin_create_barber_invalid_location_id_rejected() -> None:
+    """Creating a barber with a nonexistent location_id returns 404 Not Found."""
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        headers={"Authorization": "test 99999"},
+    ) as admin_client:
+        payload = {
+            "telegram_id": 888222,
+            "full_name": "Invalid Location Barber",
+            "location_id": str(uuid.uuid4()),
+            "is_active": True,
+        }
+        res = await admin_client.post("/api/v1/admin/barbers/", json=payload)
+        assert res.status_code == 404
+        assert "Ko'rsatilgan joylashuv topilmadi" in res.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_customer_barber_location_filtering(db_session) -> None:
+    """Customer sees only barbers assigned to the requested location_id."""
+    import uuid
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        headers={"Authorization": "test 99999"},
+    ) as admin_client:
+        # Create Location 1
+        loc1_res = await admin_client.post(
+            "/api/v1/admin/locations/",
+            json={"name": "Loc One", "city": "Tashkent", "is_active": True},
+        )
+        loc1 = loc1_res.json()
+
+        # Create Location 2
+        loc2_res = await admin_client.post(
+            "/api/v1/admin/locations/",
+            json={"name": "Loc Two", "city": "Samarkand", "is_active": True},
+        )
+        loc2 = loc2_res.json()
+
+        # Create Barber 1 in Loc 1
+        b1_res = await admin_client.post(
+            "/api/v1/admin/barbers/",
+            json={
+                "telegram_id": 90001,
+                "full_name": "Barber In Loc 1",
+                "location_id": loc1["id"],
+                "is_active": True,
+            },
+        )
+        assert b1_res.status_code == 201
+
+        # Create Barber 2 in Loc 2
+        b2_res = await admin_client.post(
+            "/api/v1/admin/barbers/",
+            json={
+                "telegram_id": 90002,
+                "full_name": "Barber In Loc 2",
+                "location_id": loc2["id"],
+                "is_active": True,
+            },
+        )
+        assert b2_res.status_code == 201
+
+    # Customer queries Loc 1
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as cust_client:
+        res1 = await cust_client.get(f"/api/v1/customer/barbers/?location_id={loc1['id']}")
+        assert res1.status_code == 200
+        barbers1 = res1.json()
+        assert any(b["full_name"] == "Barber In Loc 1" for b in barbers1)
+        assert not any(b["full_name"] == "Barber In Loc 2" for b in barbers1)
+
+        # Customer queries Loc 2
+        res2 = await cust_client.get(f"/api/v1/customer/barbers/?location_id={loc2['id']}")
+        assert res2.status_code == 200
+        barbers2 = res2.json()
+        assert any(b["full_name"] == "Barber In Loc 2" for b in barbers2)
+        assert not any(b["full_name"] == "Barber In Loc 1" for b in barbers2)
+
 
 

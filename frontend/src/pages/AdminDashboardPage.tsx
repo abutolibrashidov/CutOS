@@ -7,17 +7,13 @@ import {
   toggleBarberActive,
   updateAdminBarber,
 } from '../api/client'
+import { getLocations, type LocationPublic } from '../api/customer'
 import { ErrorState, LoadingState } from '../components/Feedback'
 import { t } from '../i18n/uz'
 
-interface LocationOption {
-  id: string
-  name: string
-}
-
 export function AdminDashboardPage() {
   const [barbers, setBarbers] = useState<AdminBarber[]>([])
-  const [locations, setLocations] = useState<LocationOption[]>([])
+  const [locations, setLocations] = useState<LocationPublic[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -53,13 +49,10 @@ export function AdminDashboardPage() {
       const data = await getAdminBarbers()
       setBarbers(data)
 
-      // Fetch customer locations for dropdown selection
+      // Fetch customer locations for dropdown selection using API client
       try {
-        const locRes = await fetch('/api/v1/customer/locations/')
-        if (locRes.ok) {
-          const locs = await locRes.json()
-          setLocations(locs)
-        }
+        const locs = await getLocations()
+        setLocations(locs)
       } catch {
         // Ignored if locations endpoint fails
       }
@@ -96,7 +89,7 @@ export function AdminDashboardPage() {
       telegram_id: String(barber.telegram_id),
       full_name: barber.full_name,
       phone: barber.phone || '',
-      location_id: barber.location_id || '',
+      location_id: barber.location_id || locations[0]?.id || '',
       bio: barber.bio || '',
       avatar_url: barber.avatar_url || '',
       is_active: barber.is_active,
@@ -107,6 +100,12 @@ export function AdminDashboardPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setActionError(null)
+
+    if (!formData.location_id) {
+      setActionError("Joylashuvni tanlash majburiy")
+      return
+    }
+
     setSubmitting(true)
 
     try {
@@ -114,7 +113,7 @@ export function AdminDashboardPage() {
         const payload: Partial<AdminBarberPayload> = {
           full_name: formData.full_name,
           phone: formData.phone || null,
-          location_id: formData.location_id || null,
+          location_id: formData.location_id,
           bio: formData.bio || null,
           avatar_url: formData.avatar_url || null,
           is_active: formData.is_active,
@@ -125,7 +124,7 @@ export function AdminDashboardPage() {
           telegram_id: Number(formData.telegram_id),
           full_name: formData.full_name,
           phone: formData.phone || null,
-          location_id: formData.location_id || null,
+          location_id: formData.location_id,
           bio: formData.bio || null,
           avatar_url: formData.avatar_url || null,
           is_active: formData.is_active,
@@ -141,6 +140,7 @@ export function AdminDashboardPage() {
       setSubmitting(false)
     }
   }
+
 
   async function handleToggleActive(barber: AdminBarber) {
     try {
@@ -334,25 +334,31 @@ export function AdminDashboardPage() {
                 />
               </div>
 
-              {locations.length > 0 && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
-                    {t('ADMIN_LOCATION')}
-                  </label>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+                  {t('ADMIN_LOCATION')} *
+                </label>
+                {locations.length === 0 ? (
+                  <div style={{ fontSize: '0.85rem', color: 'var(--danger, #ff3b30)', padding: '0.5rem', backgroundColor: '#ffe5e5', borderRadius: '6px' }}>
+                    Aktiv joylashuv topilmadi. Avval joylashuv yaratilishi kerak.
+                  </div>
+                ) : (
                   <select
+                    required
                     value={formData.location_id}
                     onChange={(e) => setFormData({ ...formData, location_id: e.target.value })}
                     style={{ width: '100%', padding: '0.6rem', borderRadius: '6px', border: '1px solid #ccc' }}
                   >
-                    <option value="">— Tanlanmagan —</option>
+                    <option value="" disabled>— Joylashuvni tanlang —</option>
                     {locations.map((loc) => (
                       <option key={loc.id} value={loc.id}>
                         {loc.name}
                       </option>
                     ))}
                   </select>
-                </div>
-              )}
+                )}
+              </div>
+
 
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>

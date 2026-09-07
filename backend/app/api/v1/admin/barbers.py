@@ -83,17 +83,15 @@ async def create_barber(
             detail="Ushbu Telegram ID bilan allaqachon barber ro'yxatdan o'tgan",
         )
 
-    # 2. Check location existence if location_id is provided
-    loc_name: str | None = None
-    if payload.location_id:
-        loc_stmt = select(Location).where(Location.id == payload.location_id)
-        loc = (await db.execute(loc_stmt)).scalars().first()
-        if not loc:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Ko'rsatilgan joylashuv topilmadi",
-            )
-        loc_name = loc.name
+    # 2. Check location existence (location_id is required)
+    loc_stmt = select(Location).where(Location.id == payload.location_id)
+    loc = (await db.execute(loc_stmt)).scalars().first()
+    if not loc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Ko'rsatilgan joylashuv topilmadi",
+        )
+    loc_name = loc.name
 
     # 3. Create Barber
     new_barber = Barber(

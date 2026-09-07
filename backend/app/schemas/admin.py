@@ -10,7 +10,7 @@ class AdminBarberCreate(BaseModel):
     telegram_id: int = Field(..., gt=0, description="Telegram numeric user ID")
     full_name: str = Field(..., min_length=1, max_length=255)
     phone: str | None = Field(None, max_length=30)
-    location_id: uuid.UUID | None = None
+    location_id: uuid.UUID = Field(..., description="Target shop location ID")
     bio: str | None = None
     avatar_url: str | None = None
     is_active: bool = True
